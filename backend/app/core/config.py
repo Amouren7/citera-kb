@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     # --- 应用 ---
     app_name: str = "Citera"
     app_version: str = "0.1.0"
-    env: Literal["dev", "prod"] = "dev"
+    env: Literal["dev", "test", "prod"] = "dev"
     debug: bool = True
 
     # --- 端口与静态资源（免费容器平台会注入 PORT）---
