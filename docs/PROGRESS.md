@@ -29,6 +29,9 @@
 | 2026-10-15 | lead | [lead-4] **浏览器端到端验收 13 项全绿**，并抓出 3 个"静默失败"缺陷（tsc/vitest/build 都测不出） | 见 `docs/E2E-REPORT.md`：① `run_id` 契约违反→评测页空白；② Vue SFC 编译器改写箭头参数→`ReferenceError: per_run`；③ 运行评测后 ECharts 实例失效→图表永久空白。修复后 `tools/e2e_final.py` exit 0、零控制台错误、移动视口 overflow=0 |
 | 2026-10-15 | lead | [lead-5] 推送 GitHub 公开仓库并修 CI 首跑失败 | 仓库 `https://github.com/Amouren7/citera-kb`（146 文件 / 1.24 MB，依赖目录已忽略）；CI 首跑失败根因：工作流传 `ENV=test` 而配置 Literal 只允许 `dev\|prod` → 已加入 `test`（commit `4d53bac`） |
 | 2026-10-15 | lead | [lead-6] 磁盘占用收口：验证完成后删除 `node_modules` / `.venv` / `dist` 等可再生依赖 | 项目占用 **394.9 MB → 2.0 MB**（源码+文档+截图全保留）；恢复命令：`pnpm install` / `python -m venv .venv && pip install -r requirements-dev.txt` |
+| 2026-10-15 | lead | [lead-7] **干净 clone 上线前验证**（平台构建会不会炸，实测而不是推断）：克隆到系统临时目录，跑平台将执行的两步 | ① `pnpm install --frozen-lockfile` → exit 0（18.6s）② `pnpm run build` → exit 0（1.58s）③ `pip install -r backend/requirements.txt` → exit 0 ④ app 导入 + HTTP 层：`/api/health` 200、登录 200、文档 6 篇、评测集 22 题、提问 200 且 **3 条引用**、非管理员访问 `/api/v1/admin/stats` → 403 正确 |
+| 2026-10-15 | lead | [lead-8] 容器启动行尾隐患复验（CRLF 会让 Linux 容器直接起不来） | 干净 clone 中 `deploy/scripts/container-entrypoint.sh`：**crlf=0 / lf=59**，`git ls-files --eol` → `i/lf w/lf attr/text eol=lf`；根 `.gitattributes` 无 BOM、UTF-8 解码正常 |
+| 2026-10-15 | lead | [lead-9] 上线阻塞点收口：**平台注册/授权必须由项目所有者本人完成**，技术侧已全部就绪 | 面向前端面试的作品话术与逐项上线清单：`../job-hunt-longgang/Citera作品_面试话术与上线清单_姜高辉.md`（该文件在求职目录，不在本仓库） |
 
 ## 待填清单（基础设施负责人负责收口）
 
