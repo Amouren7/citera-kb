@@ -1,0 +1,15 @@
+{
+  "baseUrl": "http://localhost:8000",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "question": "整机保修期是多久？",
+  "files": [
+    "D:\\Deepseek Project\\citera-kb\\docs\\screenshots\\00-login.png",
+    "D:\\Deepseek Project\\citera-kb\\docs\\screenshots\\01-chat.png",
+    "D:\\Deepseek Project\\citera-kb\\docs\\screenshots\\02-documents.png",
+    "D:\\Deepseek Project\\citera-kb\\docs\\screenshots\\04-document-detail.png",
+    "D:\\Deepseek Project\\citera-kb\\docs\\screenshots\\03-evaluation.png"
+  ]
+}

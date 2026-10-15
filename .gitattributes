@@ -1,0 +1,41 @@
+# 行尾策略：容器内执行的脚本必须是 LF，否则 Linux 下会因 CRLF 直接启动失败。
+# 这一步在 Windows（core.autocrlf=true）上尤其必要——infra 实测过 entrypoint 变 CRLF 后容器起不来。
+
+# 默认：文本文件入库用 LF，工作区按平台
+* text=auto
+
+# 明确 LF（禁止任何转换）
+*.sh        text eol=lf
+*.bash      text eol=lf
+*.py        text eol=lf
+*.mjs       text eol=lf
+*.cjs       text eol=lf
+*.js        text eol=lf
+*.ts        text eol=lf
+*.vue       text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.json      text eol=lf
+*.md        text eol=lf
+*.toml      text eol=lf
+*.ini       text eol=lf
+*.sql       text eol=lf
+Dockerfile  text eol=lf
+.dockerignore text eol=lf
+.gitignore  text eol=lf
+.gitattributes text eol=lf
+
+# 明确 CRLF（cmd.exe 解析多行 if 块需要）
+*.cmd       text eol=crlf
+*.bat       text eol=crlf
+
+# 二进制：不做任何转换
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.webp      binary
+*.ico       binary
+*.pdf       binary
+*.woff      binary
+*.woff2     binary

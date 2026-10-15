@@ -1,0 +1,66 @@
+# =============================================================================
+# Citera 溯源知识库 · 免费容器平台生产编排（外部数据库，无本地 db 服务）
+#
+# 用途：ClawCloud Run / Zeabur / 阿里云 ECS 等「平台托管 PostgreSQL + 一个容器」的场景。
+# 数据库由平台提供（必须支持 pgvector 扩展），通过环境变量注入。
+#
+# 用法：
+#   cp deploy/.env.example deploy/.env   # 填 DATABASE_URL / JWT_SECRET
+#   docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env up -d
+#
+# 平台侧只需要：
+#   Dockerfile 路径 = deploy/Dockerfile，端口 = 8000（或平台注入的 PORT）
+#
+# 契约 §0 硬要求：演示环境可能没有 LLM Key、没有外网 —— 默认 echo + local 向量。
+# =============================================================================
+name: citera-kb-prod
+
+services:
+  api:
+    image: ${IMAGE:-citera-kb:prod}
+    container_name: citera-api-prod
+    # 二选一：本地构建就保留 build；只拉镜像就删掉 build 段
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    environment:
+      APP_NAME: Citera
+      APP_VERSION: "0.1.0"
+      ENV: prod
+      DEBUG: "false"
+      # 必须由平台注入；缺失则直接启动失败（不静默用错库）
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL 未设置：请填平台给出的 PostgreSQL 连接串（postgresql+psycopg://...）}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET 未设置：请填 32 位以上随机字符串}
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: "720"
+      # 同源部署（FastAPI 同时托管 SPA），无需跨域
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      SERVE_FRONTEND: "true"
+      FRONTEND_DIST: ""
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-local}
+      EMBEDDING_DIM: "384"
+      LLM_PROVIDER: ${LLM_PROVIDER:-echo}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      RETRIEVAL_MODE: ${RETRIEVAL_MODE:-hybrid}
+      TOP_K: "5"
+      RRF_K: "60"
+      CHUNK_SIZE: "800"
+      CHUNK_OVERLAP: "120"
+      MAX_UPLOAD_MB: "10"
+      RATE_LIMIT_ENABLED: ${RATE_LIMIT_ENABLED:-true}
+      TZ: Asia/Shanghai
+      # 平台注入 PORT 时容器会监听该端口（entrypoint 读取 PORT）
+      PORT: ${PORT:-8000}
+    ports:
+      - "${PORT:-8000}:${PORT:-8000}"
+    # 免费平台内存通常 256–512MB：单 worker + 内存上限，避免 OOM 被平台杀
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 192M
+    restart: unless-stopped

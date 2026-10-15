@@ -1,0 +1,91 @@
+# =============================================================================
+# Citera 溯源知识库 · 本地 / 演示环境编排（单容器 API + pgvector 数据库）
+#
+# 一键启动：
+#   docker compose -f deploy/docker-compose.yml up -d --build
+#   # 或 Windows:  deploy\scripts\start-local.cmd
+#   # 或 Linux/macOS: deploy/scripts/start-local.sh
+#
+# 启动后打开 http://localhost:8000 —— 首次启动会自动建表 + 灌演示数据
+# （SEED_DEMO_DATA=true），可直接用 demo@citera.dev / demo1234 登录提问。
+#
+# 契约 §8.3：无外网、无 LLM Key 时功能完整（echo 模式 + 本地向量）。
+# =============================================================================
+name: citera-kb
+
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL 16 + pgvector（契约 §3 需要 vector 扩展 + HNSW 索引 + pg_trgm）
+  # ---------------------------------------------------------------------------
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: citera-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-citera}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-citera}
+      POSTGRES_DB: ${POSTGRES_DB:-citera}
+      # 中文内容需要 UTF8；locale 用 C 避免镜像里缺中文 locale 导致 initdb 失败
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+      TZ: Asia/Shanghai
+    ports:
+      # 只绑本机，方便用本地 psql / 后端直连调试；不想暴露就删掉这两行
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - citera_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-citera} -d ${POSTGRES_DB:-citera}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # API + SPA（同一个容器、同一个端口，见 deploy/Dockerfile）
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: citera-kb:local
+    container_name: citera-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_NAME: Citera
+      APP_VERSION: "0.1.0"
+      ENV: ${ENV:-dev}
+      DEBUG: ${DEBUG:-true}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-citera}:${POSTGRES_PASSWORD:-citera}@db:5432/${POSTGRES_DB:-citera}
+      # 本地默认值仅供演示；生产必须换成随机 32 位以上字符串
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me-not-for-production-32chars}
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: "720"
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      SERVE_FRONTEND: "true"
+      FRONTEND_DIST: ""
+      # 容器首次启动自动灌种子（幂等），公网 Demo 一打开就有内容可点
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-local}
+      EMBEDDING_DIM: "384"
+      LLM_PROVIDER: ${LLM_PROVIDER:-echo}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      RETRIEVAL_MODE: ${RETRIEVAL_MODE:-hybrid}
+      TOP_K: "5"
+      RRF_K: "60"
+      CHUNK_SIZE: "800"
+      CHUNK_OVERLAP: "120"
+      MAX_UPLOAD_MB: "10"
+      RATE_LIMIT_ENABLED: ${RATE_LIMIT_ENABLED:-true}
+      PORT: "8000"
+      TZ: Asia/Shanghai
+    ports:
+      - "${API_PORT:-8000}:8000"
+    restart: unless-stopped
+
+volumes:
+  citera_pgdata:
+    name: citera_pgdata

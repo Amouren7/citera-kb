@@ -1,0 +1,46 @@
+# Citera 溯源知识库 · 依赖与产物
+# ===== Node / 前端 =====
+node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+**/*.tsbuildinfo
+
+# ===== Python / 后端 =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+backend/.env
+
+# ===== 环境变量（样例保留）=====
+.env
+.env.local
+.env.*.local
+!**/.env.example
+!frontend/.env.development
+!frontend/.env.production
+
+# ===== 本地数据库 / 日志 / 临时文件 =====
+*.log
+*.sqlite3
+.citera/
+deploy/.env
+
+# ===== 素材临时区（截图产物 docs/screenshots 要提交，不忽略）=====
+.screenshots-tmp/
+screenshots-tmp/
+
+# ===== 编辑器 / 系统 =====
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.db

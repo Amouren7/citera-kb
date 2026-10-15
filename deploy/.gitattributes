@@ -1,0 +1,19 @@
+# 部署脚本的行尾约定（放在 deploy/ 下，只影响本目录，不动其他人的文件）
+#
+# 为什么必须有这个文件：
+#   Windows 上 git 默认 core.autocrlf=true，checkout 时会把文本文件转成 CRLF。
+#   deploy/scripts/container-entrypoint.sh 会被 COPY 进 Linux 镜像并由 /bin/sh 执行，
+#   一旦变成 CRLF，容器启动会直接报 `exec /usr/local/bin/citera-entrypoint: no such file or directory`
+#   （或 `\r: not found`），非常难查。这里强制 shell/python 脚本在检出后仍是 LF。
+
+*.sh   text eol=lf
+*.py   text eol=lf
+*.mjs  text eol=lf
+
+# Windows 批处理反过来必须是 CRLF，否则 cmd.exe 解析 if/goto 多行块可能出错
+*.cmd  text eol=crlf
+
+# Dockerfile / compose / workflow 也统一 LF
+Dockerfile            text eol=lf
+*.yml                 text eol=lf
+*.yaml                text eol=lf

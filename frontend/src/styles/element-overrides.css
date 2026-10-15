@@ -1,0 +1,239 @@
+/* ============================================================
+   Element Plus 覆写。
+   契约 §2：Element Plus 只用于表格/表单/弹窗等交互件，视觉必须自定义。
+   做法：把 EP 的 CSS 变量映射到 Citera 令牌 + 直角形状锁 + 去默认蓝。
+   绝不使用 #409EFF / #79bbff / #a0cfff / #c6e2ff / #d9ecff / #ecf5ff。
+   ============================================================ */
+
+:root {
+  --el-color-primary: var(--c-accent);
+  --el-color-primary-light-3: var(--c-accent);
+  --el-color-primary-light-5: var(--c-accent-line);
+  --el-color-primary-light-7: var(--c-accent-line);
+  --el-color-primary-light-8: var(--c-accent-wash);
+  --el-color-primary-light-9: var(--c-accent-wash);
+  --el-color-primary-dark-2: var(--c-accent-hover);
+
+  --el-color-success: var(--c-ok);
+  --el-color-warning: var(--c-warn);
+  --el-color-danger: var(--c-err);
+  --el-color-error: var(--c-err);
+  --el-color-info: var(--c-ink-3);
+
+  --el-bg-color: var(--c-surface);
+  --el-bg-color-page: var(--c-paper);
+  --el-bg-color-overlay: var(--c-surface);
+  --el-fill-color-blank: var(--c-surface);
+  --el-fill-color-light: var(--c-sunken);
+  --el-fill-color-lighter: var(--c-sunken);
+  --el-fill-color: var(--c-sunken);
+
+  --el-text-color-primary: var(--c-ink);
+  --el-text-color-regular: var(--c-ink-2);
+  --el-text-color-secondary: var(--c-ink-3);
+  --el-text-color-placeholder: var(--c-ink-3);
+  --el-text-color-disabled: var(--c-ink-3);
+
+  --el-border-color: var(--c-line-2);
+  --el-border-color-light: var(--c-line);
+  --el-border-color-lighter: var(--c-line);
+  --el-border-color-extra-light: var(--c-line);
+  --el-border-color-hover: var(--c-ink-3);
+  --el-border-color-darker: var(--c-ink-3);
+
+  --el-border-radius-base: var(--r-0);
+  --el-border-radius-small: var(--r-0);
+  --el-border-radius-round: var(--r-0);
+  --el-border-radius-circle: var(--r-dot);
+
+  --el-font-family: var(--font-sans);
+  --el-font-size-base: var(--fs-14);
+  --el-font-size-small: var(--fs-13);
+  --el-font-size-extra-small: var(--fs-12);
+
+  --el-box-shadow: var(--shadow-pop);
+  --el-box-shadow-light: var(--shadow-pop);
+  --el-box-shadow-lighter: var(--shadow-pop);
+  --el-box-shadow-dark: var(--shadow-pop);
+
+  --el-transition-duration: var(--dur-2);
+  --el-transition-duration-fast: var(--dur-1);
+
+  --el-component-size: 34px;
+  --el-component-size-small: 28px;
+  --el-component-size-large: 38px;
+}
+
+/* ---- 表格：hairline + 凹陷斑马 + mono 表头，无圆角 ---- */
+.el-table {
+  --el-table-border-color: var(--c-line);
+  --el-table-border: 1px solid var(--c-line);
+  --el-table-header-bg-color: var(--c-sunken);
+  --el-table-header-text-color: var(--c-ink-2);
+  --el-table-row-hover-bg-color: var(--c-sunken);
+  --el-table-text-color: var(--c-ink);
+  --el-table-bg-color: var(--c-surface);
+  --el-table-tr-bg-color: var(--c-surface);
+  --el-table-fixed-box-shadow: none;
+  font-size: var(--fs-13);
+}
+
+.el-table th.el-table__cell {
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  letter-spacing: var(--tracking-micro);
+  text-transform: uppercase;
+  font-weight: var(--fw-medium);
+}
+
+.el-table td.el-table__cell,
+.el-table th.el-table__cell {
+  padding: 9px 0;
+}
+
+.el-table::before,
+.el-table__inner-wrapper::before {
+  display: none;
+}
+
+/* ---- 弹窗 / 抽屉 / 下拉：直角、hairline、无渐变 ---- */
+.el-dialog,
+.el-drawer,
+.el-message-box,
+.el-popover.el-popper,
+.el-dropdown__popper,
+.el-select__popper {
+  border-radius: var(--r-0) !important;
+  border: 1px solid var(--c-line-2);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-pop);
+}
+
+.el-dialog__header,
+.el-drawer__header {
+  margin: 0;
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--c-line);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semi);
+  color: var(--c-ink);
+}
+
+.el-dialog__body,
+.el-drawer__body {
+  padding: var(--sp-4);
+  color: var(--c-ink);
+}
+
+.el-dialog__footer {
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 1px solid var(--c-line);
+}
+
+.el-overlay {
+  background: rgba(14, 16, 19, 0.45);
+}
+
+.el-popper.is-light,
+.el-popper.is-dark {
+  background: var(--c-surface);
+  color: var(--c-ink);
+  border-color: var(--c-line-2);
+}
+
+.el-popper.is-light .el-popper__arrow::before {
+  background: var(--c-surface);
+  border-color: var(--c-line-2);
+}
+
+/* ---- 表单件：直角、去掉 EP 内部默认内边距观感 ---- */
+.el-input__wrapper,
+.el-textarea__inner,
+.el-select__wrapper {
+  border-radius: var(--r-0);
+  box-shadow: 0 0 0 1px var(--c-line-2) inset;
+  background: var(--c-surface);
+}
+
+.el-input__wrapper.is-focus,
+.el-select__wrapper.is-focused {
+  box-shadow: 0 0 0 1px var(--c-accent) inset;
+}
+
+.el-textarea__inner:focus {
+  box-shadow: 0 0 0 1px var(--c-accent) inset;
+}
+
+.el-button {
+  border-radius: var(--r-0);
+  font-weight: var(--fw-medium);
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--c-accent);
+  --el-button-border-color: var(--c-accent);
+  --el-button-text-color: var(--c-accent-ink);
+  --el-button-hover-bg-color: var(--c-accent-hover);
+  --el-button-hover-border-color: var(--c-accent-hover);
+}
+
+.el-tag {
+  border-radius: var(--r-0);
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  letter-spacing: 0.04em;
+}
+
+.el-switch.is-checked .el-switch__core,
+.el-checkbox__input.is-checked .el-checkbox__inner,
+.el-radio__input.is-checked .el-radio__inner {
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+}
+
+.el-pagination {
+  --el-pagination-bg-color: transparent;
+  --el-pagination-button-bg-color: var(--c-surface);
+  --el-pagination-hover-color: var(--c-accent);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+}
+
+.el-pagination button,
+.el-pager li {
+  border-radius: var(--r-0);
+}
+
+.el-loading-mask {
+  background: color-mix(in srgb, var(--c-paper) 72%, transparent);
+}
+
+.el-message {
+  border-radius: var(--r-0);
+  border: 1px solid var(--c-line-2);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-pop);
+}
+
+.el-message--error {
+  border-left: 3px solid var(--c-err);
+}
+
+.el-message--success {
+  border-left: 3px solid var(--c-ok);
+}
+
+.el-message--warning {
+  border-left: 3px solid var(--c-warn);
+}
+
+/* Element Plus 的 --el-color-primary 已被替换，但兜底禁用旧默认蓝残留 */
+.el-progress-bar__inner {
+  background-color: var(--c-accent) !important;
+  border-radius: var(--r-0);
+}
+
+.el-progress-bar__outer {
+  background-color: var(--c-sunken);
+  border-radius: var(--r-0);
+}

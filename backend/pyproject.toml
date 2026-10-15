@@ -1,0 +1,42 @@
+[project]
+name = "citera-backend"
+version = "0.1.0"
+description = "Citera 溯源知识库 · 后端服务（FastAPI + PostgreSQL/pgvector）"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.143.0",
+    "uvicorn[standard]==0.54.0",
+    "SQLAlchemy==2.1.4",
+    "alembic==1.20.0",
+    "psycopg[binary]==3.3.6",
+    "pgvector==0.5.1",
+    "pydantic==2.14.1",
+    "pydantic-settings==2.15.0",
+    "PyJWT==2.15.1",
+    "python-multipart==0.0.20",
+    "httpx==0.28.1",
+    "pypdf==6.1.1",
+    "numpy==2.5.4",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "pytest-asyncio==1.3.0",
+    "pytest-cov==7.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "postgres: 需要真实 PostgreSQL + pgvector 的集成测试（默认跳过，设 CITERA_TEST_PG=1 启用）",
+]
+filterwarnings = ["ignore::DeprecationWarning"]

@@ -1,0 +1,137 @@
+/* ============================================================
+   Citera 设计令牌（唯一事实来源：docs/DESIGN-frontend.md）
+   契约 §2 / §7.3：令牌集中于此；禁止 #409EFF；禁止 CDN 字体。
+   主题切换：[data-theme="light" | "dark"]，默认跟随系统。
+   ============================================================ */
+
+:root {
+  /* ---- 字体栈（纯系统字体，零网络请求） ---- */
+  --font-sans: system-ui, -apple-system, 'Segoe UI Variable Text', 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', 'Cascadia Code', Consolas, 'SFMono-Regular', Menlo,
+    monospace;
+
+  /* ---- 字阶 ---- */
+  --fs-11: 11px;
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-16: 16px;
+  --fs-20: 20px;
+  --fs-26: 26px;
+  --fs-34: 34px;
+  --fs-46: 46px;
+
+  --fw-normal: 400;
+  --fw-medium: 500;
+  --fw-semi: 600;
+
+  /* ---- 间距阶 ---- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-7: 32px;
+  --sp-8: 40px;
+  --sp-9: 56px;
+  --sp-10: 72px;
+
+  /* ---- 形状一致性锁：全站直角（DESIGN §5） ---- */
+  --r-0: 0px;
+  --r-dot: 50%;
+
+  /* ---- 动效 ---- */
+  --dur-1: 120ms;
+  --dur-2: 180ms;
+  --dur-3: 260ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+
+  /* ---- 布局常量 ---- */
+  --rail-w: 56px;
+  --rail-label-w: 144px;
+  --topbar-h: 52px;
+  --shell-max: 1400px;
+
+  /* ---- 排版辅助 ---- */
+  --tracking-micro: 0.08em;
+}
+
+/* ============================ Paper（浅色） ============================ */
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+
+  --c-paper: #fafaf9;
+  --c-surface: #ffffff;
+  --c-sunken: #f2f3f1;
+  --c-ink: #14161a;
+  --c-ink-2: #4a4f58;
+  --c-ink-3: #7c838f;
+  --c-line: #dcdedb;
+  --c-line-2: #c3c6c2;
+
+  --c-accent: #3340d8;
+  --c-accent-hover: #2632b0;
+  --c-accent-ink: #ffffff;
+  --c-accent-wash: rgba(51, 64, 216, 0.08);
+  --c-accent-line: rgba(51, 64, 216, 0.28);
+
+  --c-ok: #167a55;
+  --c-ok-wash: rgba(22, 122, 85, 0.1);
+  --c-warn: #9a6400;
+  --c-warn-wash: rgba(154, 100, 0, 0.12);
+  --c-err: #b23a2e;
+  --c-err-wash: rgba(178, 58, 46, 0.1);
+
+  /* 阴影染色到背景色相，不用纯黑 */
+  --shadow-pop: 0 1px 0 rgba(20, 22, 26, 0.04), 0 10px 28px -10px rgba(20, 22, 26, 0.22);
+  --shadow-inset-rule: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+
+  --c-focus: #3340d8;
+  --c-skeleton: #e8e9e6;
+  --c-skeleton-hi: #f4f5f2;
+}
+
+/* =========================== Graphite（深色） =========================== */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --c-paper: #0e1013;
+  --c-surface: #15181d;
+  --c-sunken: #101317;
+  --c-ink: #e7e9ee;
+  --c-ink-2: #a2a9b4;
+  --c-ink-3: #6e7683;
+  --c-line: #24282f;
+  --c-line-2: #333942;
+
+  --c-accent: #7c8cff;
+  --c-accent-hover: #93a0ff;
+  --c-accent-ink: #0e1013;
+  --c-accent-wash: rgba(124, 140, 255, 0.14);
+  --c-accent-line: rgba(124, 140, 255, 0.34);
+
+  --c-ok: #3fbf8f;
+  --c-ok-wash: rgba(63, 191, 143, 0.14);
+  --c-warn: #d9a03a;
+  --c-warn-wash: rgba(217, 160, 58, 0.16);
+  --c-err: #f07167;
+  --c-err-wash: rgba(240, 113, 103, 0.14);
+
+  --shadow-pop: 0 1px 0 rgba(0, 0, 0, 0.4), 0 12px 32px -12px rgba(0, 0, 0, 0.7);
+  --shadow-inset-rule: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  --c-focus: #7c8cff;
+  --c-skeleton: #1b1f26;
+  --c-skeleton-hi: #23282f;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 0.01ms;
+    --dur-2: 0.01ms;
+    --dur-3: 0.01ms;
+  }
+}
