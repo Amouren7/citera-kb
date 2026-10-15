@@ -121,7 +121,8 @@ PASS  全流程零控制台错误
 
 | 项 | 命令 | 结果 |
 |---|---|---|
-| 后端单测 | `python -m pytest -q` | **124 passed** |
+| 后端单测 | `python -m pytest -q` | **191 passed, 1 skipped**（skipped 为需真实 PostgreSQL 的集成测试） |
+| 后端单测（干净 clone，纯 SQLite、**零 Docker**） | 同左 | **191 passed, 1 skipped**，exit 0（32.2s）——证明日常开发完全不需要 Docker |
 | 前端单测 | `npx vitest run` | **91 passed**（5 个文件） |
 | 前端类型检查 | `pnpm run typecheck`（tsc + vue-tsc 兼容层） | **exit 0** |
 | 前端构建 | `npx vite build` | ✅ 产物无裸变量改写（`per_run` 裸引用数 = 0） |

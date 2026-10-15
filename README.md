@@ -120,27 +120,69 @@ flowchart LR
 
 ---
 
-## 本地启动（三步）
+## 本地启动
 
-> 前置：装好 **Docker Desktop**（Windows/macOS）或 Docker Engine（Linux）。
-> 不需要本地装 Python / Node / PostgreSQL —— 依赖全在镜像里。
+### 方式 A · 不用 Docker（**推荐日常开发**，约 150 MB 磁盘）
+
+> 只依赖你本来就装了的 **Python + Node**，不需要 Docker、也不需要本地 PostgreSQL。
+> 后端用 SQLite 跑（本项目为此专门做了跨库退化路径：向量列在 SQLite 下走 JSON + Python 余弦，
+> 生产环境才用 PostgreSQL + pgvector 的 HNSW 索引）。
+> **实测：干净 clone 后 `pip install` + `pytest` 全绿（191 passed / 1 skipped，exit 0），全程零 Docker。**
 
 ```bash
 # 1) 拉代码
-git clone <你的仓库地址> citera-kb && cd citera-kb
+git clone https://github.com/Amouren7/citera-kb.git && cd citera-kb/backend
 
-# 2) 一条命令构建并启动（首次约 3–8 分钟）
-docker compose -f deploy/docker-compose.yml up -d --build
+# 2) 建虚拟环境并装依赖（实测 149 MB）
+python -m venv .venv
+.venv/Scripts/pip install -r requirements-dev.txt      # Windows
+# source .venv/bin/activate && pip install -r requirements-dev.txt   # macOS/Linux
 
-# 3) 打开 http://localhost:8000，用 demo@citera.dev / demo1234 登录
+# 3) 建表 + 灌种子（幂等，重复跑安全）
+#    SQLite 是本机文件，无需任何服务
+python -m app.db.init_db
+
+# 4) 起服务（同源托管前端时把 frontend/dist 一并准备好，见下）
+python -m uvicorn app.main:app --reload --port 8000
+#    打开 http://localhost:8000/api/docs 看接口文档
 ```
 
-首次启动会自动建扩展、建表并**灌入演示数据**（6 篇虚构演示文档 + 22 题评测集 + 2 个演示账号），
-打开就能直接提问，不需要先上传文件。种子灌入是**幂等**的：重复启动不会重复建文档、也不会重建向量。
+改前端时才需要 Node 依赖（约 292 MB，用完可删）：
+
+```bash
+cd frontend && pnpm install && pnpm run dev     # 开发服务器 http://localhost:5173
+pnpm run build                                   # 产出 dist/ 交给后端托管
+```
+
+**为什么这样最省**：Docker Desktop 的数据盘（WSL2 虚拟磁盘）**只增不减**，
+一次构建就可能落 10 GB 到你的盘上；而上面这条路径日常新增只有约 150 MB。**所以：日常开发用方式 A，只在要验证部署时开 Docker。**
+
+### 方式 B · 用 Docker（仅在你需要**验证镜像/一键部署**时）
+
+> 镜像本身约 450 MB，但 Docker Desktop 的虚拟磁盘会为构建中间层额外占用数 GB，
+> 且**删除镜像后磁盘不会自动回收**。所以建议只在"要验证部署"时开 Docker，用完可以压缩虚拟磁盘。
+
+```bash
+docker compose -f deploy/docker-compose.yml up -d --build
+# 打开 http://localhost:8000，用 demo@citera.dev / demo1234 登录
+```
 
 **不想敲命令**：双击 `deploy/scripts/start-local.cmd`（Windows）或
 `bash deploy/scripts/start-local.sh`（Linux/macOS/WSL）——它会检查 Docker、
 启动服务、等健康检查通过、自动打开浏览器。
+
+### 方式 C · 原生 PostgreSQL（不装 Docker 但要验证 pgvector 生产路径）
+
+```bash
+winget install PostgreSQL.PostgreSQL.17         # 约 350–600 MB，比 Docker 省 10 GB
+# 建库后设 DATABASE_URL（注意驱动段必须是 +psycopg）：
+#   postgresql+psycopg://postgres:<密码>@localhost:5432/citera
+python -m app.db.init_db                         # 自动建 vector/pg_trgm 扩展 + 迁移 + 灌种子
+pytest -q                                        # 集成测试：设 CITERA_TEST_PG=1 启用
+```
+
+首次启动会自动建扩展、建表并**灌入演示数据**（6 篇虚构演示文档 + 22 题评测集 + 2 个演示账号），
+打开就能直接提问，不需要先上传文件。种子灌入是**幂等**的：重复启动不会重复建文档、也不会重建向量。
 
 **验证环境是否就绪**（部署前自检）：
 
@@ -161,7 +203,7 @@ python deploy/scripts/smoke_api.py                 # 端到端：登录→建会
 | 前端 | Vue 3.5（`<script setup>` + TS）· Vite 8 · Pinia · Vue Router · Element Plus（仅交互件，视觉自定义）· ECharts（按需引入）· DOMPurify |
 | 鉴权 | JWT（HS256，access 12h）+ **标准库 `hashlib.scrypt`** 密码哈希（不引第三方哈希库） |
 | 流式 | Server-Sent Events（`fetch` + `ReadableStream`，因为要带 Authorization 头） |
-| 测试 | 后端 **124 项 pytest**（含 PostgreSQL+pgvector 集成测试）· 前端 **91 项 vitest** · 浏览器端到端 13 项断言 |
+| 测试 | 后端 **191 项 pytest**（1 项为需真实 PostgreSQL 的集成测试，默认跳过并可在 CI/本机启用）· 前端 **91 项 vitest** · 浏览器端到端 13 项断言 |
 | 交付 | 多阶段 Dockerfile（单容器单端口）· docker compose · GitHub Actions CI（pytest + build + vitest + 容器端到端冒烟） |
 
 ---
@@ -238,7 +280,7 @@ python deploy/scripts/preflight.py --mode prod --env-file deploy/.env
 > （含 8 条同义改写问句），能一键跑出三种检索模式的 Recall 和 MRR 对比。
 > 另外我特意让它在**没有模型 Key、没有外网**时也能完整演示——这时候答案由检索结果受控合成并逐句标注来源，
 > 而不是假装有模型。整个系统一个容器一个端口就能起，数据库用 pgvector，
-> CI 里跑 124 项后端测试、91 项前端测试和容器端到端冒烟。
+> CI 里跑 191 项后端测试、91 项前端测试和容器端到端冒烟。
 
 ---
 
