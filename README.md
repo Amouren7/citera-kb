@@ -9,6 +9,8 @@
 **演示账号**：`demo@citera.dev` / `demo1234`　·　**管理员**：`admin@citera.dev` / `admin1234`
 <!-- /DEMO_URL -->
 
+**源码**：[github.com/Amouren7/citera-kb](https://github.com/Amouren7/citera-kb)　·　**本地一条命令跑起来**：`docker compose -f deploy/docker-compose.yml up -d --build`
+
 ---
 
 ## 30 秒看懂
